@@ -1,5 +1,7 @@
 let map;
 
+document.getElementById("myInput").addEventListener("keyup", filterFunction)
+
 async function initMap() {
   const { Map } = await google.maps.importLibrary("maps");
 
