@@ -5,7 +5,10 @@ module.exports = {
         "es2021": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "globals": {
+        "google": "writable",
+        "dayjs": "writable"
+    },
     "overrides": [
         {
             "files": [
@@ -23,5 +26,6 @@ module.exports = {
         "no-unused-vars": "warn",
         "no-undef": "warn",
         "semi": "error"
-    }
+    },
+    "extends": "eslint:recommended"
 };

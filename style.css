@@ -19,3 +19,11 @@ body {
 #popupContent {
   overflow: hidden;
 }
+
+#filter {
+  position: absolute;
+  z-index: 1000;
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}

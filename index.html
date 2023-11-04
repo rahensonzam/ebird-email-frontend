@@ -8,13 +8,23 @@
     <link rel="stylesheet" type="text/css" href="./dropdown.css" />
     <script type="module" src="./index.js"></script>
     <script src="./filter.js"></script>
+    <script src="./dayjs.min.js"></script>
+    <script src="./customParseFormat.js"></script>
+    <script src="./isBetween.js"></script>
 </head>
 
 <body>
 
+    <div id="filter">
+        <label for="start">Start:</label>
+        <input type="date" id="start" name="start">
+        <label for="end">End:</label>
+        <input type="date" id="end" name="end">
+    </div>
+
     <div id="map"></div>
 
-    <div class="dropdown">
+    <!-- <div class="dropdown">
         <div id="myDropdown" class="dropdown-content">
             <input type="text" placeholder="Search.." id="myInput">
             <a href="#about">About</a>
@@ -25,7 +35,7 @@
             <a href="#support">Support</a>
             <a href="#tools">Tools</a>
         </div>
-    </div>
+    </div> -->
 
     <script src="./bootstrap.js"></script>
 </body>

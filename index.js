@@ -1,6 +1,9 @@
 let map;
+let markers = [];
+dayjs.extend(window.dayjs_plugin_customParseFormat);
+dayjs.extend(window.dayjs_plugin_isBetween);
 
-document.getElementById("myInput").addEventListener("keyup", filterFunction);
+// document.getElementById("myInput").addEventListener("keyup", filterFunction);
 
 async function makeWebRequest(url) {
     const data = await fetch(url);
@@ -24,27 +27,43 @@ async function initMap() {
         mapId: "DEMO_MAP_ID"
     });
 
+    let defaultStartDate = dayjs("2023-01-01", "YYYY-MM-DD");
+    let defaultEndDate = dayjs().format("YYYY-MM-DD");
+
+    placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartDate, defaultEndDate);
+
+    console.log("birdData", birdData);
+    console.log("markers", markers);
+
+}
+
+function placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartDate, defaultEndDate) {
     let markersNested = [];
-    let markers = [];
 
     // Create an info window to share between markers.
     const infoWindow = new InfoWindow();
 
-    outerLoop: for (let indexA = 0; indexA <= birdData.length - 1; indexA++) {
-        const bird = birdData[indexA];
-        if (indexA === 0) {
-            markersNested.push([birdData[indexA]]);
-            continue;
-        }
-        for (let indexB = 0; indexB <= markersNested.length - 1; indexB++) {
-            const nestedMarker = markersNested[indexB][0];
-            if (bird.lat1 === nestedMarker.lat1 && bird.lng1 === nestedMarker.lng1) {
-                markersNested[indexB].push(birdData[indexA]);
-                continue outerLoop;
-            }
-        }
-        markersNested.push([birdData[indexA]]);
+    // let startDate = dayjs("01-11-2023", "DD-MM-YYYY").format("YYYY-MM-DD");
+    // let endDate = dayjs("04-11-2023", "DD-MM-YYYY").format("YYYY-MM-DD");
+
+    let startDate = document.getElementById("start").value;
+    let endDate = document.getElementById("end").value;
+
+    if (!dayjs(startDate).isValid()) {
+        startDate = defaultStartDate;
     }
+    if (!dayjs(endDate).isValid()) {
+        endDate = defaultEndDate;
+    }
+
+    const birdDataFilteredByDate = birdData.filter(obj => {
+        let dateIsInRange = dayjs(obj.datereported).isBetween(startDate, endDate, 'day', '[]');
+        return dateIsInRange;
+    });
+
+    console.log("birdDataFilteredByDate", birdDataFilteredByDate);
+
+    markersNested = nestMarkers(birdDataFilteredByDate);
 
     console.log("markersNested", markersNested);
 
@@ -71,10 +90,16 @@ async function initMap() {
 
         // console.log("contentString", contentString);
 
+        // const pin = new PinElement({
+        //     background: "#FBBC04",
+        //     borderColor: "#137333",
+        //     glyphColor: "white",
+        // });
         const marker = new AdvancedMarkerElement({
             map: map,
             position: { lat: birdPos.lat1, lng: birdPos.lng1 },
             title: birdTitle,
+            // content: pin.element
         });
 
         marker.addListener("click", () => {
@@ -88,10 +113,27 @@ async function initMap() {
 
     }
     // });
+}
 
-    console.log("birdData", birdData);
-    console.log("markers", markers);
-
+function nestMarkers(birdData) {
+    // let markersNested = [];
+    let outputArray = [];
+    outerLoop: for (let indexA = 0; indexA <= birdData.length - 1; indexA++) {
+        const bird = birdData[indexA];
+        if (indexA === 0) {
+            outputArray.push([birdData[indexA]]);
+            continue;
+        }
+        for (let indexB = 0; indexB <= outputArray.length - 1; indexB++) {
+            const nestedMarker = outputArray[indexB][0];
+            if (bird.lat1 === nestedMarker.lat1 && bird.lng1 === nestedMarker.lng1) {
+                outputArray[indexB].push(birdData[indexA]);
+                continue outerLoop;
+            }
+        }
+        outputArray.push([birdData[indexA]]);
+    }
+    return outputArray;
 }
 
 initMap();
