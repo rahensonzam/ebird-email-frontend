@@ -4,6 +4,8 @@ dayjs.extend(window.dayjs_plugin_customParseFormat);
 dayjs.extend(window.dayjs_plugin_isBetween);
 
 // document.getElementById("myInput").addEventListener("keyup", filterFunction);
+document.getElementById("start").addEventListener("change", startDateChanged);
+document.getElementById("end").addEventListener("change", endDateChanged);
 
 async function makeWebRequest(url) {
     const data = await fetch(url);
@@ -13,7 +15,7 @@ async function makeWebRequest(url) {
 
 async function initMap() {
     const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
 
     const birdData = await makeWebRequest("http://127.0.0.1:3000/api");
 
@@ -27,17 +29,17 @@ async function initMap() {
         mapId: "DEMO_MAP_ID"
     });
 
-    let defaultStartDate = dayjs("2023-01-01", "YYYY-MM-DD");
+    let defaultStartDate = dayjs("2023-01-01", "YYYY-MM-DD").format("YYYY-MM-DD");
     let defaultEndDate = dayjs().format("YYYY-MM-DD");
 
-    placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartDate, defaultEndDate);
+    placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
 
     console.log("birdData", birdData);
     console.log("markers", markers);
 
 }
 
-function placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartDate, defaultEndDate) {
+function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate) {
     let markersNested = [];
 
     // Create an info window to share between markers.
@@ -51,9 +53,11 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartD
 
     if (!dayjs(startDate).isValid()) {
         startDate = defaultStartDate;
+        document.getElementById("start").value = defaultStartDate;
     }
     if (!dayjs(endDate).isValid()) {
         endDate = defaultEndDate;
+        document.getElementById("end").value = defaultEndDate;
     }
 
     const birdDataFilteredByDate = birdData.filter(obj => {
@@ -66,6 +70,11 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartD
     markersNested = nestMarkers(birdDataFilteredByDate);
 
     console.log("markersNested", markersNested);
+
+    markers.forEach((marker) => {
+        marker.map = null;
+    });
+    markers.length = 0;
 
     // birdData.forEach((bird) => {
     for (let indexA = 0; indexA <= markersNested.length - 1; indexA++) {
@@ -90,17 +99,23 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, birdData, defaultStartD
 
         // console.log("contentString", contentString);
 
-        // const pin = new PinElement({
-        //     background: "#FBBC04",
-        //     borderColor: "#137333",
-        //     glyphColor: "white",
-        // });
-        const marker = new AdvancedMarkerElement({
+        const pin = new PinElement({
+            background: "#FCC401",
+            borderColor: "#ED9100",
+            glyphColor: "#ED9100",
+        });
+
+        const markerOptions = {
             map: map,
             position: { lat: birdPos.lat1, lng: birdPos.lng1 },
-            title: birdTitle,
-            // content: pin.element
-        });
+            title: birdTitle
+        };
+
+        if (markersNested[indexA].length > 1) {
+            markerOptions.content = pin.element;
+        }
+
+        const marker = new AdvancedMarkerElement(markerOptions);
 
         marker.addListener("click", () => {
             infoWindow.close();
@@ -134,6 +149,20 @@ function nestMarkers(birdData) {
         outputArray.push([birdData[indexA]]);
     }
     return outputArray;
+}
+
+function startDateChanged() {
+    if (dayjs(document.getElementById("start").value).isAfter("1970-01-01", "day")) {
+        // placemarkers()
+        initMap();
+    }
+}
+
+function endDateChanged() {
+    if (dayjs(document.getElementById("end").value).isAfter("1970-01-01", "day")) {
+        // placemarkers()
+        initMap();
+    }
 }
 
 initMap();
