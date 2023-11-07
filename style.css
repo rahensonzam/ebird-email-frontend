@@ -22,8 +22,13 @@ body {
 
 #filter {
   position: absolute;
+  font-family: "Open Sans", sans-serif;
   z-index: 1000;
   top: 10px;
   left: 50%;
   transform: translate(-50%, 0);
+}
+
+input[type="date"] {
+  font-family: "Open Sans", sans-serif;
 }
