@@ -3,10 +3,6 @@ let markers = [];
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 dayjs.extend(window.dayjs_plugin_isBetween);
 
-// document.getElementById("myInput").addEventListener("keyup", filterFunction);
-document.getElementById("start").addEventListener("change", startDateChanged);
-document.getElementById("end").addEventListener("change", endDateChanged);
-
 async function makeWebRequest(url) {
     const data = await fetch(url);
     const res = await data.json();
@@ -34,9 +30,24 @@ async function initMap() {
 
     placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
 
+    // document.getElementById("myInput").addEventListener("keyup", filterFunction);
+    document.getElementById("start").addEventListener("change", startDateChanged);
+    document.getElementById("end").addEventListener("change", endDateChanged);
+
+    function startDateChanged() {
+        if (dayjs(document.getElementById("start").value).isAfter("1970-01-01", "day")) {
+            placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
+        }
+    }
+
+    function endDateChanged() {
+        if (dayjs(document.getElementById("end").value).isAfter("1970-01-01", "day")) {
+            placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
+        }
+    }
+
     console.log("birdData", birdData);
     console.log("markers", markers);
-
 }
 
 function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate) {
@@ -149,20 +160,6 @@ function nestMarkers(birdData) {
         outputArray.push([birdData[indexA]]);
     }
     return outputArray;
-}
-
-function startDateChanged() {
-    if (dayjs(document.getElementById("start").value).isAfter("1970-01-01", "day")) {
-        // placemarkers()
-        initMap();
-    }
-}
-
-function endDateChanged() {
-    if (dayjs(document.getElementById("end").value).isAfter("1970-01-01", "day")) {
-        // placemarkers()
-        initMap();
-    }
 }
 
 initMap();
