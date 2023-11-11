@@ -3,7 +3,7 @@ let markers = [];
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 dayjs.extend(window.dayjs_plugin_isBetween);
 
-const example1 = new UseBootstrapSelect(document.getElementById("example-search"));
+let dropdown;
 
 async function makeWebRequest(url) {
     const data = await fetch(url);
@@ -30,14 +30,20 @@ async function initMap() {
     let defaultStartDate = dayjs("2023-01-01", "YYYY-MM-DD").format("YYYY-MM-DD");
     let defaultEndDate = dayjs().format("YYYY-MM-DD");
 
+    let initialEndDate = dayjs().format("YYYY-MM-DD");
+    let initialStartDate = dayjs(initialEndDate).subtract(1, "day").format("YYYY-MM-DD");
+    document.getElementById("start").value = initialStartDate;
+    document.getElementById("end").value = initialEndDate;
+
+    populateDropdown(birdData);
+
+    dropdown = new UseBootstrapSelect(document.getElementById("example-search"));
+
     placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
 
     document.getElementById("start").addEventListener("change", startDateChanged);
     document.getElementById("end").addEventListener("change", endDateChanged);
-
-    document.getElementById("example-search").addEventListener("change", () => {
-        console.log("example1.value", JSON.stringify(example1.getValue()));
-    });
+    document.getElementById("example-search").addEventListener("change", speciesChanged);
 
     function startDateChanged() {
         if (dayjs(document.getElementById("start").value).isAfter("1970-01-01", "day")) {
@@ -49,6 +55,10 @@ async function initMap() {
         if (dayjs(document.getElementById("end").value).isAfter("1970-01-01", "day")) {
             placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
         }
+    }
+
+    function speciesChanged() {
+        placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
     }
 
     console.log("birdData", birdData);
@@ -83,7 +93,19 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, d
 
     console.log("birdDataFilteredByDate", birdDataFilteredByDate);
 
-    markersNested = nestMarkers(birdDataFilteredByDate);
+    let filterName = dropdown.getValue();
+
+    const birdDataFilteredBySpecies = birdDataFilteredByDate.filter(obj => {
+        if (filterName === "All Species") {
+            return true;
+        }
+        if (filterName === obj.commonname) {
+            return true;
+        }
+        return false;
+    });
+
+    markersNested = nestMarkers(birdDataFilteredBySpecies);
 
     console.log("markersNested", markersNested);
 
@@ -116,6 +138,11 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, d
         // console.log("contentString", contentString);
 
         const pin = new PinElement({
+            // Blue
+            // background: "#4B90F5",
+            // borderColor: "#1965C4",
+            // glyphColor: "#1965C4",
+            // Orange
             background: "#FCC401",
             borderColor: "#ED9100",
             glyphColor: "#ED9100",
@@ -127,7 +154,7 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, d
             title: birdTitle
         };
 
-        if (markersNested[indexA].length > 1) {
+        if (!(markersNested[indexA].length > 1)) {
             markerOptions.content = pin.element;
         }
 
@@ -165,6 +192,28 @@ function nestMarkers(birdData) {
         outputArray.push([birdData[indexA]]);
     }
     return outputArray;
+}
+
+function populateDropdown(birdData) {
+    const dpdn = document.getElementById("example-search");
+
+    let birdNames = birdData.map((bird) => {
+        return bird.commonname;
+    });
+
+    let uniqueNames = birdNames.filter((value, index) => {
+        return birdNames.indexOf(value) === index;
+    });
+
+    uniqueNames.sort((a, b) => a.localeCompare(b));
+
+    uniqueNames.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        const textNode = document.createTextNode(name);
+        opt.appendChild(textNode);
+        dpdn.appendChild(opt);
+    });
 }
 
 initMap();

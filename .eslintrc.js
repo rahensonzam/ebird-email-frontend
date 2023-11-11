@@ -7,7 +7,8 @@ module.exports = {
     },
     "globals": {
         "google": "writable",
-        "dayjs": "writable"
+        "dayjs": "writable",
+        "UseBootstrapSelect": "writable"
     },
     "overrides": [
         {

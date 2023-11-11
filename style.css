@@ -22,6 +22,8 @@ body {
 
 #filter {
   position: absolute;
+  display: grid;
+  grid-template-columns: 2fr 50px 1fr 50px 1fr;
   font-family: "Open Sans", sans-serif;
   z-index: 1000;
   top: 10px;
