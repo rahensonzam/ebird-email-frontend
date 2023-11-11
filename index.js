@@ -3,6 +3,8 @@ let markers = [];
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 dayjs.extend(window.dayjs_plugin_isBetween);
 
+const example1 = new UseBootstrapSelect(document.getElementById("example-search"));
+
 async function makeWebRequest(url) {
     const data = await fetch(url);
     const res = await data.json();
@@ -30,9 +32,12 @@ async function initMap() {
 
     placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, defaultStartDate, defaultEndDate);
 
-    // document.getElementById("myInput").addEventListener("keyup", filterFunction);
     document.getElementById("start").addEventListener("change", startDateChanged);
     document.getElementById("end").addEventListener("change", endDateChanged);
+
+    document.getElementById("example-search").addEventListener("change", () => {
+        console.log("example1.value", JSON.stringify(example1.getValue()));
+    });
 
     function startDateChanged() {
         if (dayjs(document.getElementById("start").value).isAfter("1970-01-01", "day")) {
