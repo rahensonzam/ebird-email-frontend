@@ -107,7 +107,7 @@ function placemarkers(InfoWindow, AdvancedMarkerElement, PinElement, birdData, d
         for (let indexB = 0; indexB <= markersNested[indexA].length - 1; indexB++) {
             const bird = markersNested[indexA][indexB];
             contentString += `<p>${bird.commonname} <i>${bird.scientificname}</i><br>
-            <b>Date Reported:</b> ${bird.datereported} <b>Reported By:</b> ${bird.reportedby}<br>
+            <b>Date Reported:</b> ${dayjs(bird.datereported).format("YYYY-MM-DD HH:mm:ss")} <b>Reported By:</b> ${bird.reportedby}<br>
             <b>Location:</b> ${bird.locationname}<br>
             <b>Checklist:</b> <a href="${bird.checklistlink}">${bird.checklistlink}</a></p>`;
         }
